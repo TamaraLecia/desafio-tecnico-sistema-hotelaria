@@ -10,7 +10,8 @@ class Room extends Model
     protected $table = 'rooms';
 
     // Diz ao laravel quais colunas da tabela do banco
-    // podem ser preenchidas de uma só vez, quando enviamos as informações xml
+    // podem ser preenchidas de uma só vez, 
+    // quando enviamos as informações xml
     protected $fillable = ['id', 'hotel_id', 'name'];
 
     // Um quarto pertence a um hotel

@@ -10,7 +10,8 @@ class Payment extends Model
     protected $table = 'payments';
 
     // Diz ao laravel quais colunas da tabela do banco
-    // podem ser preenchidas de uma só vez, quando enviamos as informações xml
+    // podem ser preenchidas de uma só vez, 
+    // quando enviamos as informações xml
     protected $fillable = ['reserve_id', 'method', 'value'];
 
     // Um pagamento pertence a uma reserva

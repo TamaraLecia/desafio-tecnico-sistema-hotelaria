@@ -10,7 +10,8 @@ class Daily extends Model
     protected $table = 'dailies';
 
     // Diz ao laravel quais colunas da tabela do banco
-    // podem ser preenchidas de uma só vez, quando enviamos as informações xml
+    // podem ser preenchidas de uma só vez, 
+    // quando enviamos as informações xml
     protected $fillable = ['reserve_id', 'date', 'value'];
 
     // Uma diária pertence a uma reserva
