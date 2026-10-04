@@ -1,0 +1,11 @@
+<Hotels>
+    <Hotel id="1">
+        <Name>Hotel Foco Prime</Name>
+    </Hotel>
+    <Hotel id="2">
+        <Name>Hotel Foco Beach</Name>
+    </Hotel>
+    <Hotel id="3">
+        <Name>Hotel Foco Privillege</Name>
+    </Hotel>
+</Hotels>

@@ -12,7 +12,7 @@ class Reserve extends Model
     // Diz ao laravel quais colunas da tabela do banco
     // podem ser preenchidas de uma só vez, 
     // quando enviamos as informações xml
-    protected $fillable = ['id', 'hotel_id', 'room_id', 'check_id', 'check_out', 'total'];
+    protected $fillable = ['id', 'hotel_id', 'room_id', 'check_in', 'check_out', 'total'];
 
     // Uma reserva pertence a um hotel
     public function hotel(){

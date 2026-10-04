@@ -1,0 +1,20 @@
+<Rooms>
+    <Room id="1" hotelCode="1">
+        <Name>Room 1 Hotel 1</Name>
+    </Room>
+    <Room id="2" hotelCode="1">
+        <Name>Room 2 Hotel 1</Name>
+    </Room>
+    <Room id="3" hotelCode="2">
+        <Name>Room 1 Hotel 2</Name>
+    </Room>
+    <Room id="4" hotelCode="2">
+        <Name>Room 2 Hotel 2</Name>
+    </Room>
+    <Room id="5" hotelCode="3">
+        <Name>Room 1 Hotel 3</Name>
+    </Room>
+    <Room id="6" hotelCode="3">
+        <Name>Room 2 Hotel 3</Name>
+    </Room>
+</Rooms>
