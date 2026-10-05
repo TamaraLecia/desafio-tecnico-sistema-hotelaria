@@ -20,16 +20,16 @@ class Reserve extends Model
         return $this->belongsTo(Hotel::class, 'hotel_id');
     }
 
-    // Uma reserva pertence a um quanto
+    // Uma reserva pertence a um quarto
     public function room(){
 
-        return $this->belongTo(Room::class, 'room_id');
+        return $this->belongsTo(Room::class, 'room_id');
     }
 
-    // Uma reserva tem muitos hópedes
+    // Uma reserva tem muitos hóspedes
     public function guests(){
 
-        return $this->hasMany(Guests::class, 'reserve_id');
+        return $this->hasMany(Guest::class, 'reserve_id');
     }
 
     // Uma reserva tem muitas diárias

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\RoomController;
+use  App\Http\Controllers\ReserveController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,3 +26,11 @@ Route::put('rooms/{id}', [RoomController::class, 'update']);
 
 // Rota para deletar um quarto especifíco
 Route::delete('rooms/{id}', [RoomController::class, 'destroy']);
+
+// Rotas da api de reservas (reserves)
+
+// Rota para mostrar as reservas
+Route::get('reserves', [ReserveController::class, 'index']);
+
+// Rota para adicionar uma reserva
+Route::post('reserves', [ReserveController::class, 'store']);
