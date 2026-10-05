@@ -22,3 +22,6 @@ Route::get('rooms/{id}', [RoomController::class, 'show']);
 
 // Rota para atualizar dados de um quarto específico
 Route::put('rooms/{id}', [RoomController::class, 'update']);
+
+// Rota para deletar um quarto especifíco
+Route::delete('rooms/{id}', [RoomController::class, 'destroy']);

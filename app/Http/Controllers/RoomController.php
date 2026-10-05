@@ -91,10 +91,24 @@ class RoomController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Excluir um quarto (DELETE/{id})
      */
     public function destroy(string $id)
     {
-        //
+        $room = Room::find($id);
+
+        if(!$room) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Quarto não encontrado'
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $room->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Quarto excluído com sucesso'
+        ], Response::HTTP_OK);
     }
 }
