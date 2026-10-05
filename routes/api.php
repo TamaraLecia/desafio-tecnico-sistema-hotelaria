@@ -16,3 +16,9 @@ Route::get('rooms', [RoomController::class, 'index']);
 
 // Rota para criar um quarto
 Route::post('rooms', [RoomController::class, 'store']);
+
+// Rota para ver informações de um quarto específico
+Route::get('rooms/{id}', [RoomController::class, 'show']);
+
+// Rota para atualizar dados de um quarto específico
+Route::put('rooms/{id}', [RoomController::class, 'update']);

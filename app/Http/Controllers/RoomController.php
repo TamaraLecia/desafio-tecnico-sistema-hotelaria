@@ -43,19 +43,51 @@ class RoomController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Mostrar um quarto específico, de acordo com o id (GET/{id})
      */
     public function show(string $id)
     {
-        //
+        $room = Room::with('hotel')->find($id);
+
+        if(!$room) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Quarto não encontrado'
+            ], Response::HTTP_NOT_FOUND);
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Informações do quarto encontradas com sucesso',
+            'data' => $room
+        ], Response::HTTP_OK);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Atualizar os dados de um quarto (PUT/PATCH/{id})
      */
     public function update(Request $request, string $id)
     {
-        //
+        $room = Room::find($id);
+
+        if(!$room) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Quarto não encontrado'
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $validated = $request->validate([
+            'hotel_id' => 'sometimes|required|exists|hotels,id',
+            'name' => 'sometimes|required|string|max:255'
+        ]);
+
+        $room->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Quarto atualizado com sucesso",
+            'data' => $room
+        ], Response::HTTP_OK);
     }
 
     /**
