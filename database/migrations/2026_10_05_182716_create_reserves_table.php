@@ -13,7 +13,8 @@ return new class extends Migration
     {
         if (!Schema::hasTable('reserves')) {
             Schema::create('reserves', function (Blueprint $table) {
-                $table->id();
+                $table->unsignedInteger('id')->autoIncrement();
+                $table->primary('id');
                 $table->unsignedInteger('hotel_id');
                 $table->unsignedInteger('room_id');
                 $table->date('check_in');

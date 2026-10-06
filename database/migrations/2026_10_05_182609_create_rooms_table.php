@@ -13,7 +13,8 @@ return new class extends Migration
     {
       if (!Schema::hasTable('rooms')) {
             Schema::create('rooms', function (Blueprint $table) {
-                $table->id();
+                $table->unsignedInteger('id')->autoIncrement();
+                $table->primary('id');
                 $table->unsignedInteger('hotel_id'); 
                 $table->string('name', 255);
                 $table->timestamps();

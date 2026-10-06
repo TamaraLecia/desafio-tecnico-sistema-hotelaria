@@ -17,7 +17,7 @@ class RoomController extends Controller
         $rooms = Room::with('hotel')->get();
 
         return response()->json([
-            'sucess' => true,
+            'success' => true,
             'message' => 'Lista de quartos recuperada com sucesso.',
             'data' => $rooms
         ], Response::HTTP_OK);

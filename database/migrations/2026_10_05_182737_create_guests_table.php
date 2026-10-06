@@ -13,7 +13,8 @@ return new class extends Migration
     {
        if (!Schema::hasTable('guests')) {
             Schema::create('guests', function (Blueprint $table) {
-                $table->id();
+                $table->unsignedInteger('id')->autoIncrement();
+                $table->primary('id');
                 $table->unsignedInteger('reserve_id');
                 $table->string('name', 255);
                 $table->string('last_name', 255);

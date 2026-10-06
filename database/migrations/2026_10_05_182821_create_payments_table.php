@@ -13,8 +13,9 @@ return new class extends Migration
     {
         if (!Schema::hasTable('payments')) {
             Schema::create('payments', function (Blueprint $table) {
-                $table->id();
-                $table->unsignedBigInteger('reserve_id');
+                $table->unsignedInteger('id')->autoIncrement();
+                $table->primary('id');
+                $table->unsignedInteger('reserve_id');
                 $table->string('method', 50);
                 $table->decimal('value', 10, 2);
                 $table->timestamps();
