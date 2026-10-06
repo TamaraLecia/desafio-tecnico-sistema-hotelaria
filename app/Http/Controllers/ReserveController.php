@@ -3,12 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reserve;
+
+// Importação do service (serviço)
+use App\Services\ReserveService;
+
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 
 class ReserveController extends Controller
 {
+    protected $reserveService;
+
+    // Adição da dependência de serviço no construtor do Controller
+    public function __construct(ReserveService $reserveService)
+    {
+        $this->reserveService = $reserveService;
+    }
 
     /**
      * Listar todas as reservas (método GET)
@@ -26,7 +37,7 @@ class ReserveController extends Controller
     }
 
     /**
-     * Criar uma reserva (método POST)
+     * Criar uma reserva utilizando as informaçoes do ReserveService (método POST)
      */
     public function store(Request $request)
     {
@@ -72,35 +83,8 @@ class ReserveController extends Controller
 
             ]);
 
-            // Adição da nova reserva
-            $reserve = Reserve::create([
-                'hotel_id' => $request->hotel_id,
-                'room_id' => $request->room_id,
-                'check_in' => $request->check_in,
-                'check_out' => $request->check_out,
-                'total' => $request->total
-            ]);
-
-            // Adiciona o hóspede a reserva
-            $reserve->guests()->create([
-                'name' => $request->input('guest.name'),
-                'last_name' => $request->input('guest.last_name'),
-                'phone' => $request->input('guest.phone')
-            ]);
-
-            // Adiciona a diária do hóspede a reserva
-            $reserve->dailies()->create([
-                'date' => $request->input('daily.date'),
-                'value' => $request->input('daily.value')
-            ]);
-
-            // Adiciona o pagamento da reserva se houver
-            if($request->filled('payment.method') && $request->filled('payment.value')) {
-                $reserve->payments()->create([
-                    'method' => $request->input('payment.method'),
-                    'value' => $request->input('payment.value')
-                ]);
-            }
+            // Executar a regra de negócio definida no ReserveService.php
+            $reserve = $this->reserveService->createReserve($request->all());
 
             // Carrega todos os dados da tabela reserva e das tabelas relacionadas a ele, para gerar 
             // uma resposta JSON completa
@@ -122,7 +106,7 @@ class ReserveController extends Controller
 
         }catch(\Illuminate\Validation\ValidationException $erro){
             // Se ocorrer erro de validação
-            Log::warning('Falha de validação nos dados enviados',[
+            Log::warning('Falha de validação dos dados enviados',[
                 'erros_validacao_detectados' => $erro->errors()
             ]);
 
@@ -133,9 +117,16 @@ class ReserveController extends Controller
             // Log para se der alguma falha ao criar a reserva
             Log::error('Falha ao adicionar a reserva', ['error' => $erro->getMessage()]);
 
+            // Se uma reserva de um quarto já tiver atigindo o limite de 10 reservas para o mesmo quarto
+            if($erro->getCode() === 422) {
+                $statusCode = Response::HTTP_UNPROCESSABLE_ENTITY;
+            } else {
+                $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
+            }
+
             return response()->json([
                 'success' => false,
-                'message' => 'Não foi possível criar a reserva devido a um erro interno'
+                'message' => 'Não foi possível criar a reserva. Não há disponibildade para este quarto nesta data (limite máximo de 10 ocupações atingido)'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
