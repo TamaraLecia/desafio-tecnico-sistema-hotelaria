@@ -3,13 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reserve;
-
-// Importação do service (serviço)
 use App\Services\ReserveService;
-
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use OpenApi\Attributes as OA; // Importação essencial para o Swagger mapear os atributos nativos
 
 class ReserveController extends Controller
 {
@@ -21,9 +19,20 @@ class ReserveController extends Controller
         $this->reserveService = $reserveService;
     }
 
-    /**
-     * Listar todas as reservas (método GET)
-    */
+    #[OA\Get(
+        path: "/reserves",
+        summary: "Listar todas as reservas (READ)",
+        description: "Retorna uma lista completa de todas as reservas cadastradas no sistema, incluindo os relacionamentos de hotel, quarto, hospedes, diarias e pagamentos.",
+        tags: ["Reservas"]
+    )]
+    #[OA\Response(
+        response: 200,
+        description: "Lista de reservas recuperada com sucesso."
+    )]
+    #[OA\Response(
+        response: 500,
+        description: "Erro interno no servidor ao listar reservas."
+    )]
     public function index()
     {
         // lista todas as reservas com os dados das tabelas relacionadas
@@ -36,9 +45,63 @@ class ReserveController extends Controller
         ], Response::HTTP_OK);
     }
 
-    /**
-     * Criar uma reserva utilizando as informaçoes do ReserveService (método POST)
-     */
+    #[OA\Post(
+        path: "/reserves",
+        summary: "Criar uma nova reserva (CREATE)",
+        description: "Cadastra uma nova reserva validando regras de cupom, taxa de servico e trava de estoque de ocupacao maxima de quartos.",
+        tags: ["Reservas"]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        description: "Dados estruturados necessarios para cadastrar uma reserva completa",
+        content: new OA\JsonContent(
+            required: ["hotel_id", "room_id", "check_in", "check_out", "total", "guest", "daily"],
+            properties: [
+                new OA\Property(property: "hotel_id", type: "integer", example: 1, description: "ID do hotel cadastrado"),
+                new OA\Property(property: "room_id", type: "integer", example: 1, description: "ID do quarto cadastrado"),
+                new OA\Property(property: "check_in", type: "string", example: "2026-12-01", description: "Data de check-in (AAAA-MM-DD)"),
+                new OA\Property(property: "check_out", type: "string", example: "2026-12-05", description: "Data de check-out (AAAA-MM-DD)"),
+                new OA\Property(property: "total", type: "number", format: "float", example: 500.00, description: "Valor bruto total"),
+                new OA\Property(property: "cupom", type: "string", example: "CUPOM20", description: "Codigo do cupom promocional (opcional)"),
+                
+                // Mapeamento do Objeto Guest (Hóspede)
+                new OA\Property(
+                    property: "guest",
+                    type: "object",
+                    required: ["name", "last_name", "phone"],
+                    properties: [
+                        new OA\Property(property: "name", type: "string", example: "Tamara"),
+                        new OA\Property(property: "last_name", type: "string", example: "Lecia"),
+                        new OA\Property(property: "phone", type: "string", example: "5571999999999")
+                    ]
+                ),
+
+                // Mapeamento do Objeto Daily (Diária)
+                new OA\Property(
+                    property: "daily",
+                    type: "object",
+                    required: ["date", "value"],
+                    properties: [
+                        new OA\Property(property: "date", type: "string", example: "2026-12-01"),
+                        new OA\Property(property: "value", type: "number", format: "float", example: 125.00)
+                    ]
+                ),
+
+                // Mapeamento do Objeto Payment (Pagamento)
+                new OA\Property(
+                    property: "payment",
+                    type: "object",
+                    properties: [
+                        new OA\Property(property: "method", type: "string", example: "Cartão de Crédito"),
+                        new OA\Property(property: "value", type: "number", format: "float", example: 510.00)
+                    ]
+                )
+            ]
+        )
+    )]
+    #[OA\Response(response: 201, description: "Reserva criada com sucesso.")]
+    #[OA\Response(response: 422, description: "Falha na validacao dos dados enviados ou quarto sem disponibilidade (limite de 10 atingido).")]
+    #[OA\Response(response: 500, description: "Erro interno no servidor ao tentar criar reserva.")]
     public function store(Request $request)
     {
         try{
@@ -80,15 +143,12 @@ class ReserveController extends Controller
                 'guest.phone.required' => 'o número de telefone do hóspede é obrigatório.',
                 'daily.date.required'  => 'a data da diária é obrigatório.',
                 'daily.value.required' => 'o valor da diária é obrigatório.'
-
             ]);
 
             // Executar a regra de negócio definida no ReserveService.php
             $reserve = $this->reserveService->createReserve($request->all());
 
-            // Carrega todos os dados da tabela reserva e das tabelas relacionadas a ele, para gerar 
-            // uma resposta JSON completa
-
+            // Carrega todos os dados da tabela reserva e das tabelas relacionadas a ele, para gerar uma resposta JSON completa
             $reserve->load(['hotel', 'room', 'guests', 'dailies', 'payments']);
 
             // Log para buscar as informações das reservas
@@ -117,7 +177,7 @@ class ReserveController extends Controller
             // Log para se der alguma falha ao criar a reserva
             Log::error('Falha ao adicionar a reserva', ['error' => $erro->getMessage()]);
 
-            // Se uma reserva de um quarto já tiver atigindo o limite de 10 reservas para o mesmo quarto
+            // Se uma reserva de um quarto já tiver atingido o limite de 10 reservas para o mesmo quarto
             if($erro->getCode() === 422) {
                 $statusCode = Response::HTTP_UNPROCESSABLE_ENTITY;
             } else {
@@ -126,8 +186,8 @@ class ReserveController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Não foi possível criar a reserva. Não há disponibildade para este quarto nesta data (limite máximo de 10 ocupações atingido)'
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                'message' => 'Não foi possível criar a reserva. Não há disponibilidade para este quarto nesta data (limite máximo de 10 ocupações atingido)'
+            ], $statusCode); // variável dinâmica de status code tratada acima
         }
     }
 }
